@@ -4,17 +4,17 @@
 
 ## 목차
 
-* [Datasets & ERD](#Datasets-&-ERD)
-* [Data Cleaning](#Data-Cleaning)
-* [A. Pizza Metrics](#A.-Pizza-Metrics)
-* [B. Runner and Customer Experience](#B.-Runner-and-Customer-Experienc)
-* [C. Ingredient Optimisation](C.-Ingredient-Optimisation)
-* [D. Pricing and Ratings](D.-Pricing-and-Ratings)
-* [E. Bonus Questions](#E.-Bonus-Questions)
+* [Datasets & ERD](#datasets)
+* [Data Cleaning](#cleaning)
+* [A. Pizza Metrics](#a)
+* [B. Runner and Customer Experience](#b)
+* [C. Ingredient Optimisation](#c)
+* [D. Pricing and Ratings](#d)
+* [E. Bonus Questions](#e)
 
 ---
 
-## Datasets & ERD
+## <a id="datasets"></a> Datasets & ERD
 
 Datasets를 생성하기 위해 [스키마 쿼리](https://github.com/waterymallon/8-Week-SQL-Challenge/blob/main/Case%20Study%20%232%20-%20Pizza%20Runner/case2_schema.sql)를 실행해주세요.<br>
 해당 케이스는 총 6개의 테이블이 주어졌습니다.
@@ -113,7 +113,7 @@ Datasets를 생성하기 위해 [스키마 쿼리](https://github.com/waterymall
 <img width="690" height="566" alt="image" src="https://github.com/user-attachments/assets/d42c9a48-5082-45be-9461-d7d00b12fba3" />
 
 
-## Data Cleaning
+## <a id="cleaning"></a> Data Cleaning
 
 테이블을 보면 컬럼마다 값이 `NULL`이 아니라 문자값 "null", 공백 "", 아니면 불필요한 문자값이 붙어있습니다. `CASE` 구문으로 적절히 변환해 준 후 임시 테이블(`TEMPORARY TABLE`)을 생성합니다.
 
@@ -197,7 +197,7 @@ from runner_orders;
 
 ## Case Study Questions
 
-### A. Pizza Metrics
+### <a id="a"></a> A. Pizza Metrics
 
 #### 1. How many pizzas were ordered?
 
@@ -394,7 +394,7 @@ group by dayname(order_time)
 
 ---
 
-### B. Runner and Customer Experience
+### <a id="b"></a> B. Runner and Customer Experience
 
 #### 1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
 
@@ -511,7 +511,7 @@ group by runner_id;
 
 ---
 
-### C. Ingredient Optimisation
+### <a id="c"></a> C. Ingredient Optimisation
 
 #### 1. What are the standard ingredients for each pizza?
 
@@ -575,8 +575,8 @@ order by count desc;
 
 ---
 
-### D. Pricing and Ratings
+### <a id="d"></a> D. Pricing and Ratings
 
 
-### E. Bonus Questions
+### <a id="e"></a> E. Bonus Questions
 
