@@ -1,4 +1,6 @@
 # Case Study #2 - Pizza Runner
+<img width="50%" alt="image" src="https://github.com/user-attachments/assets/c409a6a4-a453-431d-9d71-56ede291a64d" />
+
 
 ## 목차
 
@@ -14,9 +16,10 @@
 
 ## Datasets & ERD
 
-Datasets를 생성하기 위해 [스키마 쿼리]()를 실행해주세요.
+Datasets를 생성하기 위해 [스키마 쿼리](https://github.com/waterymallon/8-Week-SQL-Challenge/blob/main/Case%20Study%20%232%20-%20Pizza%20Runner/case2_schema.sql)를 실행해주세요.
 해당 케이스는 총 6개의 테이블이 주어졌습니다.
 
+<img width="690" height="566" alt="image" src="https://github.com/user-attachments/assets/d42c9a48-5082-45be-9461-d7d00b12fba3" />
 
 
 ## Data Cleaning
@@ -40,6 +43,7 @@ order_time
 from customer_orders;
 
 ```
+<img width="534" height="220" alt="image" src="https://github.com/user-attachments/assets/8f92499f-e587-4c6a-9ece-2a89554d2adb" />
 
 ### 2. runner_orders_temp
 
@@ -70,6 +74,7 @@ case
 from runner_orders;
 
 ```
+<img width="618" height="236" alt="image" src="https://github.com/user-attachments/assets/df73b796-95a8-4207-a11a-d98152bb9318" />
 
 ---
 
@@ -84,6 +89,7 @@ select count(*)
 from customer_orders;
 
 ```
+<img width="113" height="53" alt="image" src="https://github.com/user-attachments/assets/8fffd86e-5623-46cf-b2a0-883dfc11d250" />
 
 ---
 
@@ -94,6 +100,8 @@ select count(distinct order_id)
 from customer_orders;
 
 ```
+<img width="201" height="67" alt="image" src="https://github.com/user-attachments/assets/5a6ac862-6873-4aed-ad4f-41acfcde915f" />
+
 
 - 유니크한 주문의 수입니다. 한 사람이 여러 피자를 주문해도 `order_id`는 하나로 집계됩니다.
 
