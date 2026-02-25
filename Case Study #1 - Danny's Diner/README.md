@@ -191,6 +191,8 @@ group by customer_id
 - 시간 연산은 + INTERVAL 1 YEAR/MONTH/DAY/HOUR/MINUTE/SECOND
 - 포인트는 **가입 후** 계산되기에, 그 전에 날짜는 고려하지 않는다
 
+---
+
 ### Join All The Things<br><br>Recreate the table with: customer_id, order_date, product_name, price, member (Y/N)
 ```sql
 select sales.customer_id, order_date, product_name, price, 
