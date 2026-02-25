@@ -2,8 +2,8 @@
 Danny Ma의 [8-Week SQL Challenge](https://8weeksqlchallenge.com/)에 8가지 케이스에 대한 저의 솔루션을 작성하고 있습니다.
 
 ## 목차
-- [Case Study #1 - Danny’s Dinner]()
-- [Case Study #2 - Pizza Runner]()
+- [Case Study #1 - Danny’s Dinner](https://github.com/waterymallon/8-Week-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner)
+- [Case Study #2 - Pizza Runner](https://github.com/waterymallon/8-Week-SQL-Challenge/tree/main/Case%20Study%20%232%20-%20Pizza%20Runner)
 
 ## 개발 환경
 

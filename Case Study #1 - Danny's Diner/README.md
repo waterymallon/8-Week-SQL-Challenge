@@ -12,6 +12,49 @@
 Datasets를 생성하기 위해 [스키마 쿼리](https://github.com/waterymallon/8-Week-SQL-Challenge/blob/main/Case%20Study%20%231%20-%20Danny's%20Diner/case1_schema.sql)를 실행해주세요.<br>
 해당 케이스는 3가지 테이블 sales, menu, members가 주어졌습니다.
 
+<details>
+<summary> sales </summary>
+
+| customer_id | order_date | product_id |
+|---------------|------------|------------|
+| A             | 2021-01-01 | 1          |
+| A             | 2021-01-01 | 2          |
+| A             | 2021-01-07 | 2          |
+| A             | 2021-01-10 | 3          |
+| A             | 2021-01-11 | 3          |
+| A             | 2021-01-11 | 3          |
+| B             | 2021-01-01 | 2          |
+| B             | 2021-01-02 | 2          |
+| B             | 2021-01-04 | 1          |
+| B             | 2021-01-11 | 1          |
+| B             | 2021-01-16 | 3          |
+| B             | 2021-02-01 | 3          |
+| C             | 2021-01-01 | 3          |
+| C             | 2021-01-01 | 3          |
+| C             | 2021-01-07 | 3          |
+
+</details>
+
+<details>
+<summary> menu </summary>
+
+| product_id | product_name | price |
+|------------|--------------|-------|
+| 1          | sushi        | 10    |
+| 2          | curry        | 15    |
+| 3          | ramen        | 12    |
+</details>
+
+<details>
+<summary> member </summary>
+
+| customer_id | join_date  |
+|-------------|------------|
+| A           | 2021-01-07 |
+| B           | 2021-01-09 |
+</details>
+
+
 <img width="699" height="440" alt="image" src="https://github.com/user-attachments/assets/7bbaf079-c193-4fa0-81a9-58602801831b" />
 
 ***
@@ -25,7 +68,12 @@ from sales s
 inner join menu m on s.product_id = m.product_id
 group by customer_id
 ```
-<img width="212" height="91" alt="image" src="https://github.com/user-attachments/assets/4f6bd45d-3faa-4d4f-9401-cdf3391fdbe1" />
+
+| customer_id | sum(price) |
+| :--- | :--- |
+| A | 76 |
+| B | 74 |
+| C | 36 |
 
 ---
 
@@ -35,7 +83,12 @@ select customer_id, count(distinct order_date)
 from sales
 group by customer_id
 ```
-<img width="303" height="111" alt="image" src="https://github.com/user-attachments/assets/c2733b62-19f6-4f75-a085-25f4bdf759d7" />
+
+|  customer_id | count(distinct order_date) |
+|---------------|----------------------------|
+| A             | 4                          |
+| B             | 6                          |
+| C             | 2                          |
 
 ---
 
@@ -52,7 +105,14 @@ where rank_date = 1
 group by customer_id, order_date, product_name, rank_date
 -- group by로 중복 제거
 ```
-<img width="408" height="116" alt="image" src="https://github.com/user-attachments/assets/5af92e92-7f21-4bbb-a767-f8bfcc1bac6f" />
+
+| customer_id | order_date | product_name | rank_date |
+|---------------|------------|--------------|-----------|
+| A             | 2021-01-01 | sushi        | 1         |
+| A             | 2021-01-01 | curry        | 1         |
+| B             | 2021-01-01 | curry        | 1         |
+| C             | 2021-01-01 | ramen        | 1         |
+
 
 - 순위 함수() OVER (PARTITION BY 그룹기준 ORDER BY 정렬기준)
     - ROW_NUMBER() = 동점이여도 순서대로 (1, 2, 3, 4…)
@@ -69,7 +129,11 @@ group by product_name
 order by count(*) desc
 limit 1 -- 안해도 무관
 ```
-<img width="216" height="95" alt="image" src="https://github.com/user-attachments/assets/b303b530-6e92-4311-948b-8552a82b56fa" />
+
+|  product_name | count(*) |
+|----------------|----------|
+| ramen          | 8        |
+
 
 ---
 ### 5. Which item was the most popular for each customer?
@@ -86,7 +150,13 @@ select *
 from cte
 where count_rank = 1
 ```
-<img width="396" height="148" alt="image" src="https://github.com/user-attachments/assets/b467b6db-1597-46da-a150-4516efad4b9c" />
+| customer_id | product_name | count(*) | count_rank |
+|-------------|--------------|----------|------------|
+| A           | ramen        | 3        | 1          |
+| B           | curry        | 2        | 1          |
+| B           | sushi        | 2        | 1          |
+| B           | ramen        | 2        | 1          |
+| C           | ramen        | 3        | 1          |
 
 - 실수 방지를 위해 count(*)도 함께 조회하는 습관을 길러두자
 - group by customer_id, product_name으로 고객별로 인기있는 상품들의 count수를 조회했다.
@@ -109,7 +179,10 @@ inner join menu on cte.product_id = menu.product_id
 where date_rank = 1
 order by customer_id, date_rank
 ```
-<img width="502" height="84" alt="image" src="https://github.com/user-attachments/assets/dace9ba6-3199-47c7-b8f1-dde8d419084b" />
+| customer_id | order_date | join_date  | date_rank | product_name |
+|-------------|------------|------------|-----------|--------------|
+| A           | 2021-01-10 | 2021-01-07 | 1         | ramen        |
+| B           | 2021-01-11 | 2021-01-09 | 1         | sushi        |
 
 ---
 
@@ -128,7 +201,10 @@ from cte
 inner join menu on cte.product_id = menu.product_id
 where date_rank = 1
 ```
-<img width="323" height="77" alt="image" src="https://github.com/user-attachments/assets/43780ac3-1618-44af-a85b-a85a68b4a6be" />
+| customer_id | product_name | date_rank |
+|---------------|--------------|-----------|
+| A             | sushi        | 1         |
+| B             | sushi        | 1         |
 
 - 멤버가 되기 직전의 첫 아이템이여도, where 조건으로 조인하기 전의 주문 날짜만 필터링 후 내림차순 랭크로 조회하면 된다<br>
 이로 앞에 있는 다른 rank사용 문제들과 본질적으로 같은 문제다.
@@ -144,8 +220,10 @@ and order_date < join_date
 inner join menu on sales.product_id = menu.product_id
 group by customer_id
 ```
-<img width="292" height="69" alt="image" src="https://github.com/user-attachments/assets/36f3c49a-c500-4aae-bb44-40517326b8ad" />
-
+| customer_id | count(*) | sum(price) |
+|---------------|----------|------------|
+| B             | 3        | 40         |
+| A             | 2        | 25         |
 ---
 
 ### 9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
@@ -162,7 +240,11 @@ select customer_id, sum(point)
 from cte
 group by customer_id
 ```
-<img width="213" height="97" alt="image" src="https://github.com/user-attachments/assets/cbd42aa4-577d-4075-8a0b-58cdefb7fde6" />
+| customer_id | sum(point) |
+|---------------|------------|
+| A             | 860        |
+| B             | 940        |
+| C             | 360        |
 
 ---
 
@@ -185,7 +267,10 @@ from point_table
 where order_date < '2021-02-01'
 group by customer_id
 ```
-<img width="210" height="75" alt="image" src="https://github.com/user-attachments/assets/b11242fe-b704-450f-9d8f-56877597c7f4" />
+| customer_id | sum(point) |
+|---------------|------------|
+| B             | 320        |
+| A             | 1020       |
 
 
 - 시간 연산은 + INTERVAL 1 YEAR/MONTH/DAY/HOUR/MINUTE/SECOND
@@ -203,7 +288,23 @@ from sales
 inner join menu on sales.product_id = menu.product_id
 left join members on sales.customer_id = members.customer_id
 ```
-<img width="448" height="353" alt="image" src="https://github.com/user-attachments/assets/e55c673a-e23c-40b6-806a-547fa6bb8f00" />
+| customer_id | order_date | product_name | price | member |
+|---------------|------------|--------------|-------|--------|
+| A             | 2021-01-01 | sushi        | 10    | N      |
+| A             | 2021-01-01 | curry        | 15    | N      |
+| A             | 2021-01-07 | curry        | 15    | Y      |
+| A             | 2021-01-10 | ramen        | 12    | Y      |
+| A             | 2021-01-11 | ramen        | 12    | Y      |
+| A             | 2021-01-11 | ramen        | 12    | Y      |
+| B             | 2021-01-01 | curry        | 15    | N      |
+| B             | 2021-01-02 | curry        | 15    | N      |
+| B             | 2021-01-04 | sushi        | 10    | N      |
+| B             | 2021-01-11 | sushi        | 10    | Y      |
+| B             | 2021-01-16 | ramen        | 12    | Y      |
+| B             | 2021-02-01 | ramen        | 12    | Y      |
+| C             | 2021-01-01 | ramen        | 12    | N      |
+| C             | 2021-01-01 | ramen        | 12    | N      |
+| C             | 2021-01-07 | ramen        | 12    | N      |
 
 -  주문 당시 고객 유무(Y/N) 확인이 주요 포인트다.
 
@@ -229,6 +330,22 @@ else dense_rank() over (
 ) end as 'rank'
 from joined_table
 ```
-<img width="495" height="352" alt="image" src="https://github.com/user-attachments/assets/a4ea232b-b8bb-4667-b095-0b09e0dacead" />
+| customer_id | order_date | product_name | price | member | rank |
+|---------------|------------|--------------|-------|--------|------|
+| A             | 2021-01-01 | sushi        | 10    | N      | NULL |
+| A             | 2021-01-01 | curry        | 15    | N      | NULL |
+| A             | 2021-01-07 | curry        | 15    | Y      | 1    |
+| A             | 2021-01-10 | ramen        | 12    | Y      | 2    |
+| A             | 2021-01-11 | ramen        | 12    | Y      | 3    |
+| A             | 2021-01-11 | ramen        | 12    | Y      | 3    |
+| B             | 2021-01-01 | curry        | 15    | N      | NULL |
+| B             | 2021-01-02 | curry        | 15    | N      | NULL |
+| B             | 2021-01-04 | sushi        | 10    | N      | NULL |
+| B             | 2021-01-11 | sushi        | 10    | Y      | 1    |
+| B             | 2021-01-16 | ramen        | 12    | Y      | 2    |
+| B             | 2021-02-01 | ramen        | 12    | Y      | 3    |
+| C             | 2021-01-01 | ramen        | 12    | N      | NULL |
+| C             | 2021-01-01 | ramen        | 12    | N      | NULL |
+| C             | 2021-01-07 | ramen        | 12    | N      | NULL |
 
 ---
