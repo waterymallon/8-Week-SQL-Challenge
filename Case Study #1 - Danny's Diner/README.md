@@ -205,6 +205,8 @@ left join members on sales.customer_id = members.customer_id
 
 -  주문 당시 고객 유무(Y/N) 확인이 주요 포인트다.
 
+---
+
 ### Rank All The Things<br><br>Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.
 ```sql
 with joined_table as (
