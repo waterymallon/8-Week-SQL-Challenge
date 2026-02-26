@@ -399,13 +399,21 @@ group by dayname(order_time)
 #### 1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
 
 ```sql
-select floor(datediff(registration_date, '2021-01-01') / 7) as week_no, count(*)
+select floor(datediff(registration_date, '2021-01-01') / 7) + 1 as week_no, count(*)
 from runners
 group by floor(datediff(registration_date, '2021-01-01') / 7);
 
 ```
 
-- 2021-01-01은 금요일이므로 표준 `WEEK()` 함수 대신 기준일로부터의 일수 차이를 7로 나누어 계산합니다.
+| week_no | count(*) |
+|-----------|----------|
+| 1         | 2        |
+| 2         | 1        |
+| 3         | 1        |
+
+- 2021-01-01에 주가 시작되는 점에 유의해야 합니다. `dayname()`로 시작일을 확인하면 **금요일**임을 알 수 있습니다. 이로 `week()` 말고 직접 계산이 필요합니다.
+- 시작일과 등록된 날짜의 차이를 7로 나눈 후 내림차하여 몇 번째 주인지 계산해 줍니다.
+- `week()`는 일요일(mode 0) 혹은 월요일(mode 1)을 기준으로 1년을 0~53번째 주로 표현합니다.
 
 ---
 
@@ -414,19 +422,26 @@ group by floor(datediff(registration_date, '2021-01-01') / 7);
 ```sql
 with cte as (
 select distinct c.order_id, runner_id,
-timestampdiff(minute, order_time, pickup_time) as order_pickup
+timestampdiff(minute, order_time, pickup_time) as time
 from customer_orders_temp c
 inner join runner_orders_temp r
 on c.order_id = r.order_id
 )
 
-select runner_id, avg(order_pickup)
+select runner_id, avg(time)
 from cte
 group by runner_id;
 
 ```
 
-- 한 주문에 피자가 여러 개여도 픽업은 한 번이므로 `distinct order_id`가 필수입니다.
+| runner_id | avg(time) |
+|-------------|-----------|
+| 1           | 14.0000   |
+| 2           | 19.6667   |
+| 3           | 10.0000   |
+
+- 한 주문에 피자가 여러 개여도 픽업은 한 번이므로 `distinct`가 필수입니다.
+- 주문에서 픽업까지 몇 분걸렸는지 구할 때는 `timestampdiff()` 혹은 `minute(timediff())`로 가능합니다.
 
 ---
 
@@ -448,6 +463,13 @@ group by pizza_no;
 
 ```
 
+| pizza_no | avg(prep_time) |
+|------------|----------------|
+| 1          | 12.0000        |
+| 2          | 18.0000        |
+| 3          | 29.0000        |
+
+- 직전 문제의 cte를 거의 그대로 쓰나, **number of pizzas**가 중요하여 `distinct`를 제외해 줍니다.
 - 피자 개수가 많을수록 준비 시간이 늘어나는 양의 상관관계를 보입니다.
 
 ---
@@ -467,6 +489,17 @@ group by customer_id;
 
 ```
 
+| customer_id | avg(distance) |
+|---------------|---------------|
+| 101           | 20            |
+| 102           | 18.4          |
+| 103           | 23.4          |
+| 104           | 10            |
+| 105           | 25            |
+
+
+- order_id & customer_id별로 distance정보가 필요해 cte를 작성했습니다
+- 만약 cte없이 바로 고객별로 평균 거리를 조회하면, 고객이 여러 번 주문한 경우가 빠질 수 있습니다.
 ---
 
 #### 5. Difference between the longest and shortest delivery times for all orders?
@@ -477,26 +510,28 @@ from runner_orders_temp;
 
 ```
 
+| diff |
+|--------|
+| 30   |
+
 ---
 
 #### 6. Average speed for each runner for each delivery?
 
 ```sql
 with cte as(
-select runner_id, c.order_id, distance, duration,
-round(distance / (duration/60), 2) as km_per_h
-from customer_orders_temp c
-inner join runner_orders_temp r on c.order_id = r.order_id
-where distance > 0
-group by order_id, runner_id, distance, duration
+select *, round(distance / (duration / 60), 2) as speed
+from runner_orders_temp
+where duration > 0
 )
 
-select runner_id, min(km_per_h), max(km_per_h), avg(km_per_h)
+select runner_id, order_id, avg(speed)
 from cte
-group by runner_id;
+group by runner_id, order_id
 
 ```
 
+- 속도는 시속으로 km / hour로 계산하면 됩니다. 이를 위해 duration은 60분 기준의 비율을 사용합니다.
 ---
 
 #### 7. Successful delivery percentage for each runner?
@@ -509,6 +544,12 @@ group by runner_id;
 
 ```
 
+| runner_id | success_percentage |
+|-------------|--------------------|
+| 1           | 100                |
+| 2           | 75                 |
+| 3           | 50                 |
+
 ---
 
 ### <a id="c"></a> C. Ingredient Optimisation
@@ -518,20 +559,30 @@ group by runner_id;
 ```sql
 -- JSON_TABLE을 활용해 쉼표로 구분된 문자열을 행으로 변환
 with cte as (
-    select pizza_id, jt.topping_id
-    from pizza_recipes pr
-    cross join json_table(
-        concat('[', pr.toppings, ']'),
+    select *
+    from pizza_recipes
+    inner join json_table(
+        concat('[', pizza_recipes.toppings , ']'),
         '$[*]' columns(topping_id int path '$')
-    ) as jt
-)
+) as jt)
 
-select pizza_id, group_concat(topping_name) as standard_ingredients
+select pizza_id, group_concat(topping_name) as standard_toppings
 from cte
-inner join pizza_toppings pt on cte.topping_id = pt.topping_id
-group by pizza_id;
+inner join pizza_toppings pt
+	on cte.topping_id = pt.topping_id
+group by pizza_id
 
 ```
+| pizza_id | standard_toppings                                              |
+|------------|----------------------------------------------------------------|
+| 1          | Bacon,BBQ Sauce,Beef,Cheese,Chicken,Mushrooms,Pepperoni,Salami |
+| 2          | Cheese,Mushrooms,Onions,Peppers,Tomatoes,Tomato Sauce          |
+
+- PostgreSQL은 `REGEXP_SPLIT_TO_TABLE()`을 사용해 편리하게 `,`별로 값을 나눌 수 있습니다.
+
+    - 단 MySQL은 그런 함수는 없기에 `JSON_TABLE()`을 사용해 다중 값을 분리합시다.
+
+- 가독성을 위해 집계함수 `group_concat()`를 사용했습니다.
 
 #### 2. What was the most commonly added extra?
 
