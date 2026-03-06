@@ -1,8 +1,6 @@
--- 1. 스키마 생성 및 선택
 CREATE DATABASE IF NOT EXISTS pizza_runner;
 USE pizza_runner;
 
--- 2. runners 테이블
 DROP TABLE IF EXISTS runners;
 CREATE TABLE runners (
   runner_id INTEGER,
@@ -15,7 +13,6 @@ INSERT INTO runners (runner_id, registration_date) VALUES
   (3, '2021-01-08'),
   (4, '2021-01-15');
 
--- 3. customer_orders 테이블
 DROP TABLE IF EXISTS customer_orders;
 CREATE TABLE customer_orders (
   order_id INTEGER,
@@ -44,7 +41,6 @@ VALUES
   (10, 104, 1, 'null', 'null', '2020-01-11 18:34:49'),
   (10, 104, 1, '2, 6', '1, 4', '2020-01-11 18:34:49');
 
--- 4. runner_orders 테이블
 DROP TABLE IF EXISTS runner_orders;
 CREATE TABLE runner_orders (
   order_id INTEGER,
@@ -69,7 +65,6 @@ VALUES
   (9, 2, 'null', 'null', 'null', 'Customer Cancellation'),
   (10, 1, '2020-01-11 18:50:20', '10km', '10minutes', 'null');
 
--- 5. pizza_names 테이블
 DROP TABLE IF EXISTS pizza_names;
 CREATE TABLE pizza_names (
   pizza_id INTEGER,
@@ -80,7 +75,6 @@ INSERT INTO pizza_names (pizza_id, pizza_name) VALUES
   (1, 'Meatlovers'),
   (2, 'Vegetarian');
 
--- 6. pizza_recipes 테이블
 DROP TABLE IF EXISTS pizza_recipes;
 CREATE TABLE pizza_recipes (
   pizza_id INTEGER,
@@ -91,7 +85,6 @@ INSERT INTO pizza_recipes (pizza_id, toppings) VALUES
   (1, '1, 2, 3, 4, 5, 6, 8, 10'),
   (2, '4, 6, 7, 9, 11, 12');
 
--- 7. pizza_toppings 테이블
 DROP TABLE IF EXISTS pizza_toppings;
 CREATE TABLE pizza_toppings (
   topping_id INTEGER,
