@@ -4,13 +4,13 @@
 
 ## Table of Contents
 
-* [Datasets & ERD](https://www.google.com/search?q=%23datasets)
-* [Data Cleaning](https://www.google.com/search?q=%23cleaning)
-* [A. Pizza Metrics](https://www.google.com/search?q=%23a)
-* [B. Runner and Customer Experience](https://www.google.com/search?q=%23b)
-* [C. Ingredient Optimisation](https://www.google.com/search?q=%23c)
-* [D. Pricing and Ratings](https://www.google.com/search?q=%23d)
-* [E. Bonus Questions](https://www.google.com/search?q=%23e)
+* [Datasets & ERD](#datasets)
+* [Data Cleaning](#cleaning)
+* [A. Pizza Metrics](#a)
+* [B. Runner and Customer Experience](#b)
+* [C. Ingredient Optimisation](#c)
+* [D. Pricing and Ratings](#d)
+* [E. Bonus Questions](#e)
 
 ## <a id="datasets"></a> Datasets & ERD
 

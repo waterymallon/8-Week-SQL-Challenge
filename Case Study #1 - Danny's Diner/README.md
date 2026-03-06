@@ -4,8 +4,8 @@
 
 ## Table of Contents
 
-* [Datasets & ERD](https://www.google.com/search?q=%23datasets-%26-erd)
-* [Case Study Questions](https://www.google.com/search?q=%23Case-Study-Questions)
+* [Datasets & ERD](#datasets-%26-erd)
+* [Case Study Questions](#Case-Study-Questions)
 
 ---
 
