@@ -611,7 +611,6 @@ inner join pizza_toppings pt
     on cte.topping_id = pt.topping_id
 group by pizza_id
 
-
 ```
 
 | pizza_id | standard_toppings |
@@ -695,8 +694,75 @@ order by count(*) desc
 
 `Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers`
 
+```sql
+with cte as(
+select c.*, pizza_name, 
+row_number() over (order by order_id) as row_no
+from customer_orders_temp c
+inner join pizza_names p
+	on c.pizza_id = p.pizza_id
+),
+
+cte_exc as(
+select row_no, group_concat(topping_name) as exclusions_name
+from cte c
+inner join json_table(
+concat('[', c.exclusions ,']'),
+'$[*]' columns(topping_id int path '$')
+) as jt
+inner join pizza_toppings pt
+	on jt.topping_id = pt.topping_id
+group by row_no
+),
+
+cte_ext as (
+select row_no, group_concat(topping_name) as extras_name
+from cte c
+inner join json_table(
+concat('[', c.extras ,']'),
+'$[*]' columns(topping_id int path '$')
+) as jt
+inner join pizza_toppings pt
+	on jt.topping_id = pt.topping_id
+group by row_no
+)
+
+select cte.row_no, pizza_name, exclusions_name, extras_name,
+concat(
+	pizza_name,
+    if(exclusions_name is not null, concat(" - Exclude ", exclusions_name), ""),
+    if(extras_name is not null, concat(" - Extra ", extras_name), "")
+	) as string_order
+from cte
+left join cte_exc
+	on cte.row_no = cte_exc.row_no
+left join cte_ext
+	on cte.row_no = cte_ext.row_no
+```
+
+| row_no | exclusions_name     | extras_name   | pizza_name | string_order                                                  |
+|--------|---------------------|---------------|------------|---------------------------------------------------------------|
+| 1      |                     |               | Meatlovers | Meatlovers                                                    |
+| 2      |                     |               | Meatlovers | Meatlovers                                                    |
+| 3      |                     |               | Meatlovers | Meatlovers                                                    |
+| 4      |                     |               | Vegetarian | Vegetarian                                                    |
+| 5      | Cheese              |               | Meatlovers | Meatlovers - Exclude Cheese                                   |
+| 6      | Cheese              |               | Meatlovers | Meatlovers - Exclude Cheese                                   |
+| 7      | Cheese              |               | Vegetarian | Vegetarian - Exclude Cheese                                   |
+| 8      |                     | Bacon         | Meatlovers | Meatlovers - Extra Bacon                                      |
+| 9      |                     |               | Vegetarian | Vegetarian                                                    |
+| 10     |                     | Bacon         | Vegetarian | Vegetarian - Extra Bacon                                      |
+| 11     |                     |               | Meatlovers | Meatlovers                                                    |
+| 12     | Cheese              | Chicken,Bacon | Meatlovers | Meatlovers - Exclude Cheese - Extra Chicken,Bacon             |
+| 13     |                     |               | Meatlovers | Meatlovers                                                    |
+| 14     | Mushrooms,BBQ Sauce | Cheese,Bacon  | Meatlovers | Meatlovers - Exclude Mushrooms,BBQ Sauce - Extra Cheese,Bacon |
+
+
 * This question asks to represent standard, extra, and exclusion options as strings based on order requests.
+- First CTE is used as base table after adding row number and pizza name. Row number is crucial to distinguish duplicate record in the table.
+    - Row number is also needed for `group_concat` as grouping key
 * Using the logic from questions 2 and 3, create a CTE to separate `extras` and `exclusions`.
+* Left join base_table with two CTEs. Used `concat` and `IF` to format strings per record
 
 ---
 
