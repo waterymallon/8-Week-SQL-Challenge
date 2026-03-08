@@ -14,7 +14,7 @@
 
 ## <a id="datasets"></a> Datasets & ERD
 
-Please run the [schema query](https://www.google.com/search?q=https://github.com/waterymallon/8-Week-SQL-Challenge/blob/main/Case%2520Study%2520%25232%2520-%2520Pizza%2520Runner/case2_schema.sql) to create the Datasets.
+Please run the [schema query](./case2_schema.sql) to create the Datasets.
 
 
 A total of 6 tables are provided for this case.

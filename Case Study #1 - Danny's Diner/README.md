@@ -4,14 +4,14 @@
 
 ## Table of Contents
 
-* [Datasets & ERD](#datasets-%26-erd)
+* [Datasets & ERD](#datasets-erd)
 * [Case Study Questions](#Case-Study-Questions)
 
 ---
 
-## Datasets & ERD
+## <a id="datasets-erd"></a>Datasets & ERD
 
-Please run the [Schema Query](https://www.google.com/search?q=https://github.com/waterymallon/8-Week-SQL-Challenge/blob/main/Case%2520Study%2520%25231%2520-%2520Danny%27s%2520Diner/case1_schema.sql) to create the datasets.
+Please run the [Schema Query](./case1_schema.sql) to create the datasets.
 
 
 This case study provides three tables: `sales`, `menu`, and `members`.
