@@ -177,7 +177,7 @@ where plan_id = 4
 
 - Filter by plan_id 4 to get churned customers.
 - Ensure customer_id is distinct to avoid double-counting.
-- Used sub query to total customer count.
+- Used sub query for total customer count.
 
 #### 5. How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
 
