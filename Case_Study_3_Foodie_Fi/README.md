@@ -181,9 +181,106 @@ where plan_id = 4
 
 #### 5. How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
 
+```sql
+with cte as(
+select customer_id, group_concat(plan_id)
+from subscriptions
+group by customer_id
+having group_concat(plan_id order by start_date) = '0,4'
+)
+
+select count(distinct customer_id) as trial_churn_count,
+(select count(distinct customer_id) from subscriptions) as total_count,
+round((count(distinct customer_id) / (select count(distinct customer_id) from subscriptions)) * 100, 0) as percentage
+from cte
+```
+
+- The plan has to be 0 (trial) to 4 (churn).
+- First solution used `group_concat` to filter trial to churn plans.
+  - Order by start_date to ensure chronological order of the customer's history.
+- `group_concat` has max length limits, using this may not be the best solution.
+
+```sql
+with cte as(
+select s.*, plan_name,
+lead(plan_name) over (partition by customer_id order by start_date) as next_plan
+from subscriptions s
+inner join plans p
+	on s.plan_id = p.plan_id
+)
+
+select count(*) as trial_churn_count,
+(select count(distinct customer_id) from subscriptions) as total_count,
+round((count(*) / (select count(distinct customer_id) from subscriptions)) * 100, 0) as percentage
+from cte
+where plan_name = 'trial' and next_plan = 'churn'
+```
+
+| trial_churn_count | total_count | percentage |
+|---------------------|-------------|------------|
+| 92                  | 1000        | 9          |
+
+- Second solution used `lead()` to filter trial to churn plans.
+  - Order by start_date to ensure chronological order of the customer's history.
+- Joined `plans` to filter by plan_name
+
 #### 6. What is the number and percentage of customer plans after their initial free trial?
 
+```sql
+with cte as (
+select s.*, plan_name,
+lead(plan_name) over (partition by customer_id order by start_date) as next_plan
+from subscriptions s
+inner join plans p
+	on s.plan_id = p.plan_id
+)
+
+select next_plan, count(next_plan),
+round(count(next_plan) * 100 / sum(count(next_plan)) over(), 1) as percentage
+from cte
+where plan_name = 'trial' and next_plan is not null
+group by next_plan 
+```
+
+| next_plan   | count(next_plan) | percentage |
+|---------------|------------------|------------|
+| basic monthly | 546              | 54.6       |
+| churn         | 92               | 9.2        |
+| pro annual    | 37               | 3.7        |
+| pro monthly   | 325              | 32.5       |
+
+- Group by next_plan to get count and percentage per plan.
+- Use `lead()` to identify the next plan immediately following the initial free trial.
+- Use either a subquery or `sum(count(next_plan)) over()` to retrieve the grand total required for the percentage denominator.
+
 #### 7. What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
+
+```sql
+-- 7. What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
+with cte as(
+select s.*,
+lead(start_date) over (partition by customer_id order by start_date) as end_date
+from subscriptions s
+where start_date <= '2020-12-31'
+)
+
+select plan_id, count(*),
+round(count(*) * 100 / sum(count(*)) over(), 1) as percentage
+from cte
+where end_date >= '2020-12-31' or end_date is null
+group by plan_id
+order by plan_id
+```
+| plan_id | count(*) | percentage |
+|-----------|----------|------------|
+| 0         | 19       | 1.9        |
+| 1         | 224      | 22.4       |
+| 2         | 327      | 32.7       |
+| 3         | 195      | 19.5       |
+| 4         | 236      | 23.6       |
+
+- Use `lead()` to identify next start_date.
+- Filter all plans that starts before 2020-12-31 and ends (or does not end which is `null`) after 2020-12-31
 
 #### 8. How many customers have upgraded to an annual plan in 2020?
 
