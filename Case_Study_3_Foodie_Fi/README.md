@@ -19,6 +19,7 @@ Note that `subscriptions` has more than 1000 rows
 
 <details>
   <summary> plans </summary>
+
 | plan_id | plan_name     | price |
 |---------|---------------|-------|
 | 0       | trial         | 0     |
@@ -30,6 +31,7 @@ Note that `subscriptions` has more than 1000 rows
 
 <details>
   <summary> subscriptions </summary>
+
 | customer_id | plan_id | start_date |
 |-------------|---------|------------|
 | 1           | 0       | 2020-08-01 |
@@ -284,13 +286,120 @@ order by plan_id
 
 #### 8. How many customers have upgraded to an annual plan in 2020?
 
+```sql
+select count(distinct customer_id) as counts
+from subscriptions
+where year(start_date) = 2020
+	and plan_id = 3
+```
+
+| counts |
+|----------|
+| 195      |
+
 #### 9. How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
+
+```sql
+with cte as(
+select customer_id,
+max(case when plan_id = 0 then start_date end) as start_date_0,
+max(case when plan_id = 3 then start_date end) as start_date_3,
+abs(datediff(max(case when plan_id = 0 then start_date end), max(case when plan_id = 3 then start_date end))) as duration
+from subscriptions
+group by customer_id
+having start_date_3 is not null
+)
+
+select avg(duration)
+from cte
+```
+
+| avg(duration) |
+|-----------------|
+| 104.6202        |
+
+- Pivot(group) by `customer_id` to check dates from when they joined to when they upgrade to annual plan.
+  - `Max` will ignore NULL values and pick max `start_date` per `customer_id`
+- Use `DATEDIFF` to calculate the number of days instead of `-`.
 
 #### 10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
 
+```sql
+with cte as(
+select customer_id,
+max(case when plan_id = 0 then start_date end) as start_date_0,
+max(case when plan_id = 3 then start_date end) as start_date_3,
+abs(datediff(max(case when plan_id = 0 then start_date end), max(case when plan_id = 3 then start_date end))) as duration
+from subscriptions
+group by customer_id
+having start_date_3 is not null
+)
+
+select floor(duration / 30) as range_no,
+concat(floor(duration / 30) * 30, '-', floor(duration / 30) * 30 + 30, ' days') as range_name,
+count(distinct customer_id) as counts
+from cte
+group by range_no, range_name
+order by range_no
+```
+
+| range_no | range_name   | counts |
+|------------|--------------|--------|
+| 0          | 0-30 days    | 48     |
+| 1          | 30-60 days   | 25     |
+| 2          | 60-90 days   | 33     |
+| 3          | 90-120 days  | 35     |
+| 4          | 120-150 days | 43     |
+| 5          | 150-180 days | 35     |
+| 6          | 180-210 days | 27     |
+| 7          | 210-240 days | 4      |
+| 8          | 240-270 days | 5      |
+| 9          | 270-300 days | 1      |
+| 10         | 300-330 days | 1      |
+| 11         | 330-360 days | 1      |
+
+- Used FLOOR(duration/30) to group customers into 30-day buckets based on their upgrade time from trial to annual plan.
+  - The ranges should technically be 0-29, 30-59 days etc.
+
 #### 11. How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
+
+```sql
+with cte as(
+select *,
+	lead(plan_id) over (partition by customer_id order by start_date) as next_plan
+from subscriptions
+where year(start_date) = 2020
+)
+
+select *
+from cte
+where plan_id = 2
+	and next_plan = 1
+```
+
+- Use `lead` to filter case of downgrading from 2 to 1.
+- There is no instance of downgrading
 
 ### <a id = 'c'></a> C. Challenge Payment Question
 
+The Foodie-Fi team wants you to create a new `payments` table for the year 2020 that includes amounts paid by each customer in the `subscriptions` table with the following requirements:
+
+* monthly payments always occur on the same day of month as the original start_date of any monthly paid plan
+* upgrades from basic to monthly or pro plans are reduced by the current paid amount in that month and start immediately
+* upgrades from pro monthly to pro annual are paid at the end of the current billing period and also starts at the end of the month period
+* once a customer churns they will no longer make payments
+
 
 ### <a id = 'd'></a> D. Outside The Box Questions
+
+The following are open ended questions which might be asked during a technical interview for this case study - there are no right or wrong answers, but answers that make sense from both a technical and a business perspective make an amazing impression!
+
+#### 1. How would you calculate the rate of growth for Foodie-Fi?
+
+#### 2. What key metrics would you recommend Foodie-Fi management to track over time to assess performance of their overall business?
+
+#### 3. What are some key customer journeys or experiences that you would analyse further to improve customer retention?
+
+#### 4. If the Foodie-Fi team were to create an exit survey shown to customers who wish to cancel their subscription, what questions would you include in the survey?
+
+#### 5. What business levers could the Foodie-Fi team use to reduce the customer churn rate? How would you validate the effectiveness of your ideas?
