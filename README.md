@@ -7,6 +7,7 @@ This repository contains my solutions for the 8 case studies in Danny Ma's [8-We
 * [Case Study #1 - Danny’s Diner](./Case_Study_1_Danny's_Diner/README.md)
 * [Case Study #2 - Pizza Runner](./Case_Study_2_Pizza_Runner/README.md)
 * [Case Study #3 - Foodie fi](./Case_Study_3_Foodie_Fi/README.md)
+* [Case Study #4 - Data Bank](./Case_Study_4_Data_Bank/README.md)
 
 ## Tech Stack
 
