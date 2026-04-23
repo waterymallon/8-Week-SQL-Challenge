@@ -1,4 +1,5 @@
 # Case Study #3 - Foodie Fi
+<img src="image.png" width="50%">
 
 ## Table of Contents
 
